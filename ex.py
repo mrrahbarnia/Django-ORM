@@ -1,66 +1,59 @@
 from django.db import connection, reset_queries
-from inventory.models import Brand, ProductInventory, ProductType, Product, Category
-from sqlparse import format
 from pygments import highlight
-from pygments.formatters import TerminalFormatter
 from pygments.lexers import PostgresLexer
-from django.db import IntegrityError
+from pygments.formatters import TerminalFormatter
+from sqlparse import format
+from ecommerce.inventory.models import Brand, ProductInventory, Product, Category, Stock, ProductAttribute
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-connection.queries
-x = Brand.objects.filter(name="Rebook")
-
-def sql(x):
-    sqlformatted = format(str(x.query), reindent=True)
-    print(highlight(sqlformatted, PostgresLexer(), TerminalFormatter()))
-
-# Return a dictionary by values utility
-x = Brand.objects.filter(name="Rebook").values()
-x = Brand.objects.filter(name="Rebook").values("name")
-
-Brand.objects.create(brand_id=1, name="Nike")
-Brand(brand_id=15, name="Adidas").save()
-
-try:
-    Brand.objects.create(brand_id=4, name="D&G2")
-except IntegrityError:
-    print("I cant")
+x = Brand.objects.all().query
+print(x)
 
 cursor = connection.cursor()
-cursor.execute('INSERT INTO inventory_brand(brand_id, name, nickname) VALUES (%s, %s, %s)',('1', 'Nike', ''))
+x = cursor.execute('SELECT * FROM inventory_brand')
 
-ProductType().save()
-Product.objects.create(web_id=1)
-ProductInventory(sku='123', upc='123', product_type_id=1, product_id=2, brand_id=1, retail_price='100.00', store_price='100.00', sale_price='100.00', weight='100').save()
+x = Brand.objects.raw('SELECT * FROM inventory_brand')
 
-cursor.execute("INSERT INTO inventory_productinventory(sku,upc,product_type_id,product_id,brand_id,is_active,is_default,retail_price,store_price,sale_price,is_on_sale,is_digital,weight,created_at,updated_at) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",['1234','1234',1,1,1,True,True,'100','100','100',True,True,'100','2023-10-21 12:29:49.153383','2023-10-21 12:29:49.153383'])
+try:
+    x = Brand.objects.get(id=15)
+    print(x.name)
+except ObjectDoesNotExist:
+    print("Does not exist")
 
-x = Category(name='Cat1', slug='123')
-x = Category(name='Cat2', slug='121')
+x = Brand.objects.raw("SELECT * FROM inventory_brand WHERE id=1 OR id=2")
+for i in x:
+    print(i.id, i.name)
 
-Product.objects.create(web_id='2', slug='123', name='slug')
+x = Brand.objects.filter(id=1)
+x = Brand.objects.filter(id=1, name='361')
+x = Brand.objects.filter(id=1, name='361') | Brand.objects.filter(id=2)
+x = Brand.objects.filter(id__gt=1)
+x = Brand.objects.filter(id__gte=1)
+x = Brand.objects.filter(id__lt=2)
+x = Brand.objects.filter(id__lte=2)
+x = Brand.objects.filter(name__startswith='a')
+x = Brand.objects.exclude(name__startswith='a')
 
-y = Product.objects.get(id=2)
-x = Category.objects.all()
-y.category.add(*x)
+x = Brand.objects.raw("SELECT * FROM inventory_brand WHERE id=1")
+x = Brand.objects.raw("SELECT * FROM inventory_brand WHERE id=1 AND name='361'")
+x = Brand.objects.raw("SELECT * FROM inventory_brand WHERE id=1 AND name='361' OR id=2")
+x = Brand.objects.raw("SELECT * FROM inventory_brand WHERE id=1 AND name='361' OR id=2 OR NOT id=8")
 
-# Inserting a list into a single table using bulk method
-data = [
-    {'brand_id': 1, 'name': 'Rebook'},
-    {'brand_id': 2, 'name': 'Nike'}
-]
-Brand.objects.bulk_create([Brand(**x) for x in data])
+ProductInventory.objects.filter(brand__name='a.x.n.y.')
+Product.objects.filter(category__name='boots')
+Category.objects.filter(category__name='lips too too effort tan anke boot')
+ProductInventory.objects.filter(product__category__name='heels')
+Category.objects.filter(category__product__id=12)
 
-def insert_multiple_bulk_create():
-    Brand.objects.bulk_create([Brand(brand_id=n, name=n) for n in range(10000)])
+x = ProductInventory.objects.raw("SELECT * FROM inventory_productinventory INNER JOIN inventory_product ON inventory_productinventory.product_id=inventory_product.id INNER JOIN inventory_category ON inventory_product.category_id=inventory_category.id WHERE inventory_category.name='heels'")
 
-# Tool for calculate a performance of inserting data into the database
-import cProfile
-profile = cProfile.Profile()
-profile.runcall(insert_multiple_bulk_create)
-profile.print_stats(sort='tottime')
+formatted = format(str(x.query), reindent=True)
+print(highlight(formatted, PostgresLexer(), TerminalFormatter()))
 
-# generating fixtures automatically
-python manage.py dumpdata > db.json # entire project
-python manage.py dumpdata inventory > db.json # only an app
-python manage.py dumpdata inventory.brand > db.json # only an app
-python manage.py dumpdata inventory.brand --indent 2 > db.json # only an app with appropriate indent
+ProductInventory.objects.filter(product_inventory__units__gt='50')
+Stock.objects.filter(product_inventory__sku__gt=6327000212)
+
+ProductInventory.objects.filter(attribute_values__product_attribute__name="woman-shoe-size")
+ProductAttribute.objects.filter(product_attribute__product_attribute_values__id=1)
+ProductAttribute.objects.filter(product_type_attributes__product_type__id=1)
+ProductInventory.objects.filter(attribute_values__product_attribute__name='woman-shoe-size')

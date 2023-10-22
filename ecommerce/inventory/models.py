@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
@@ -42,7 +45,13 @@ class Product(models.Model):
         max_length=255,
     )
     description = models.TextField(blank=True)
-    category = models.ManyToManyField(Category)
+    category = models.ForeignKey(
+        Category,
+        related_name="category",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     is_active = models.BooleanField(
         default=False,
     )
@@ -59,12 +68,10 @@ class Product(models.Model):
 
 
 class Brand(models.Model):
-    brand_id = models.PositiveIntegerField(primary_key=True, db_column="brand_id")
     name = models.CharField(
         max_length=255,
-        unique=True,
+        # unique=True,
     )
-    nickname = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
@@ -138,34 +145,11 @@ class ProductInventory(models.Model):
         default=False,
     )
     retail_price = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        error_messages={
-            "name": {
-                "max_length": _("the price must be between 0 and 999.99."),
-            },
-        },
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]
     )
     store_price = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        error_messages={
-            "name": {
-                "max_length": _("the price must be between 0 and 999.99."),
-            },
-        },
-    )
-    sale_price = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        error_messages={
-            "name": {
-                "max_length": _("the price must be between 0 and 999.99."),
-            },
-        },
-    )
-    is_on_sale = models.BooleanField(
-        default=False,
     )
     is_digital = models.BooleanField(
         default=False,
