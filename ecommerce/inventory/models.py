@@ -47,7 +47,7 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     category = models.ForeignKey(
         Category,
-        related_name="category",
+        related_name="product",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -63,14 +63,17 @@ class Product(models.Model):
         auto_now=True,
     )
 
+    class Meta:
+        ordering = ['id']
+
     def __str__(self):
-        return self.name
+        return f"{self.web_id}>{self.name}"
 
 
 class Brand(models.Model):
     name = models.CharField(
         max_length=255,
-        # unique=True,
+        unique=True,
     )
 
     def __str__(self):
@@ -113,6 +116,9 @@ class ProductAttributeValue(models.Model):
     attribute_value = models.CharField(
         max_length=255,
     )
+
+    def __str__(self):
+        return f"{self.product_attribute.name} > {self.attribute_value}"
 
 
 class ProductInventory(models.Model):
@@ -164,7 +170,7 @@ class ProductInventory(models.Model):
     )
 
     def __str__(self):
-        return self.sku
+        return f"{self.sku}:{self.product.name}"
 
 
 class Media(models.Model):

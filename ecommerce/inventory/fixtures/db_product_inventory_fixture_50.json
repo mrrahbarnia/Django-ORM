@@ -26,11 +26,11 @@
       "upc": "100000000002",
       "product_type": "1",
       "product": "2",
-      "brand": "3",
+      "brand": "21",
       "is_active": "1",
       "is_default": "1",
-      "retail_price": "99",
-      "store_price": "94",
+      "retail_price": "199",
+      "store_price": "194",
       "is_digital": "False",
       "weight": "947",
       "created_at": "2021-09-01T13:20:30+03:00",
@@ -927,6 +927,25 @@
       "store_price": "66",
       "is_digital": "False",
       "weight": "1088",
+      "created_at": "2021-09-01T13:20:30+03:00",
+      "updated_at": "2021-09-01T13:20:30+03:00"
+    }
+  },
+  {
+    "model": "inventory.productinventory",
+    "id": "50",
+    "fields": {
+      "sku": "7633969398",
+      "upc": "100000000050",
+      "product_type": "1",
+      "product": "1",
+      "brand": "1",
+      "is_active": "1",
+      "is_default": "1",
+      "retail_price": "98",
+      "store_price": "92",
+      "is_digital": "False",
+      "weight": "988",
       "created_at": "2021-09-01T13:20:30+03:00",
       "updated_at": "2021-09-01T13:20:30+03:00"
     }

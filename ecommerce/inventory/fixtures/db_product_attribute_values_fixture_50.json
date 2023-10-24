@@ -11,24 +11,24 @@
         "model": "inventory.productattributevalues",
         "id": "2",
         "fields": {
-            "attributevalues": "1",
-            "productinventory": "2"
+            "attributevalues": "3",
+            "productinventory": "1"
         }
     },
     {
         "model": "inventory.productattributevalues",
         "id": "3",
         "fields": {
-            "attributevalues": "1",
-            "productinventory": "3"
+            "attributevalues": "2",
+            "productinventory": "50"
         }
     },
     {
         "model": "inventory.productattributevalues",
         "id": "4",
         "fields": {
-            "attributevalues": "1",
-            "productinventory": "4"
+            "attributevalues": "4",
+            "productinventory": "50"
         }
     },
     {
