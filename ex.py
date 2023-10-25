@@ -1,9 +1,12 @@
 from django.db import connection, reset_queries
-from ecommerce.inventory.models import Brand, ProductInventory, Product
+from ecommerce.inventory.models import Brand, ProductInventory, Product, Media, ProductAttribute
 from pygments import highlight
 from pygments.lexers import PostgresLexer
 from pygments.formatters import TerminalFormatter
 from sqlparse import format
+
+reset_queries()
+connection.queries
 
 x = Brand.objects.all()
 
@@ -60,3 +63,20 @@ Product.objects.all().last()
 
 Product.objects.all().latest('id')
 Product.objects.all().earliest('created_at')
+
+ProductInventory.objects.filter(product_id=1)
+ProductInventory.objects.raw("SELECT * FROM inventory_productinventory WHERE product_id=1")
+
+Media.objects.filter(is_feature=True, product_inventory__product__id=1)
+Media.objects.raw("SELECT * FROM inventory_media INNER JOIN inventory_productinventory ON inventory_media.product_inventory_id=inventory_productinventory.id WHERE inventory_media.is_feature=True AND inventory_productinventory.product_id=1")
+
+ProductAttribute.objects.filter(product_type_attributes__product_type__id=1)
+ProductAttribute.objects.raw("SELECT * FROM inventory_productattribute INNER JOIN inventory_producttypeattribute ON inventory_productattribute.id=inventory_producttypeattribute.product_attribute_id INNER JOIN inventory_producttype ON inventory_producttypeattribute.product_type_id=inventory_producttype.id WHERE inventory_producttype.id=1")
+Product.objects.filter(product__attribute_values__product_attribute=1).distinct()
+Product.objects.raw("SELECT * FROM inventory_product INNER JOIN inventory_productinventory ON inventory_product.id=inventory_productinventory.product_id INNER JOIN inventory_productattributevalues ON inventory_productinventory.id=inventory_productattributevalues.productinventory_id INNER JOIN inventory_productattributevalue ON inventory_productattributevalues.attributevalues_id=inventory_productattributevalue.id WHERE inventory_productattributevalue.id=1")
+ProductInventory.objects.filter(product_inventory__units__lt=50)
+ProductInventory.objects.raw("SELECT * FROM inventory_productinventory INNER JOIN inventory_stock ON inventory_productinventory.id=inventory_stock.product_inventory_id WHERE inventory_stock.units <= 50")
+ProductInventory.objects.filter(product_inventory__last_checked__range=('2020-01-01', '2022-10-10'))
+ProductInventory.objects.raw("SELECT * FROM inventory_productinventory INNER JOIN inventory_stock ON inventory_productinventory.id=inventory_stock.product_inventory_id WHERE inventory_stock.last_checked BETWEEN '2020-01-01' AND '2022-10-10'")
+Product.objects.filter(product__product_type__producttype__id=1).distinct()
+Brand.objects.filter(brand__product_type__product_type_attributes__id=1).distinct()
