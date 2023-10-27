@@ -1,9 +1,10 @@
 from django.db import connection, reset_queries
-from ecommerce.inventory.models import Brand, ProductInventory, Product, Media, ProductAttribute
+from ecommerce.inventory.models import Brand, ProductInventory, Product, Media, ProductAttribute, Category
 from pygments import highlight
 from pygments.lexers import PostgresLexer
 from pygments.formatters import TerminalFormatter
 from sqlparse import format
+from Customfields.models import Category, Product, Product_Category
 
 reset_queries()
 connection.queries
@@ -80,3 +81,20 @@ ProductInventory.objects.filter(product_inventory__last_checked__range=('2020-01
 ProductInventory.objects.raw("SELECT * FROM inventory_productinventory INNER JOIN inventory_stock ON inventory_productinventory.id=inventory_stock.product_inventory_id WHERE inventory_stock.last_checked BETWEEN '2020-01-01' AND '2022-10-10'")
 Product.objects.filter(product__product_type__producttype__id=1).distinct()
 Brand.objects.filter(brand__product_type__product_type_attributes__id=1).distinct()
+
+
+Category.objects.all()
+Product.objects.all()
+Product(name='test', is_active=True).save()
+cat1 = Category.objects.create(name='test', slug='test1', is_active=True)
+prod1 = Product(name='test', slug='test', is_active=True).save()
+prod1.categories.add(cat1)
+prod1 = Product.objects.create(name='test2', slug='test2', is_active=True)
+prod1.categories.all()
+cat1.product_set.all()  # If we dont implement related name in the model
+cat = Category.objects.get(id=3)
+cat.product.all() # Using related name called product that implemented in models
+prod = Product.objects.get(id=3)
+prod.categories.all()
+# For addin additional field in link table we must use through_defaults option
+prod.categories.add(cat, through_defaults={'order': 1})
