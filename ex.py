@@ -5,6 +5,8 @@ from pygments.lexers import PostgresLexer
 from pygments.formatters import TerminalFormatter
 from sqlparse import format
 from Customfields.models import Category, Product, Product_Category
+from user.models import Person
+from django.contrib.auth.models import User
 
 reset_queries()
 connection.queries
@@ -98,3 +100,7 @@ prod = Product.objects.get(id=3)
 prod.categories.all()
 # For addin additional field in link table we must use through_defaults option
 prod.categories.add(cat, through_defaults={'order': 1})
+
+
+Person.objects.create_user(username='test', password='T123@example')
+User.objects.create_user(username='test1', password='T123@example')

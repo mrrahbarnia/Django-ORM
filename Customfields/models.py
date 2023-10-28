@@ -1,9 +1,20 @@
 from django.db import models
+from django.db.models.query import QuerySet
+
+
+
+class ActiveCategories(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True)
+
 
 class Category(models.Model):
     name = models.CharField(max_length=10)
     slug = models.SlugField()
     is_active = models.BooleanField()
+
+    objects = models.Manager()
+    activefilter = ActiveCategories() # Usage: Category.activefilter.all()
 
     class Meta:
         verbose_name_plural = 'categories'
